@@ -1,0 +1,44 @@
+<mvc:View controllerName="project1.controller.View1"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m">
+    <Page id="page" title="{i18n>title}">
+    <Panel >
+      <Table items="{/VOYTYP}" selectionChange="onSelect" mode="SingleSelectMaster">
+        <columns>
+        
+        <Column >
+         <Label text="code"></Label>
+        </Column>
+         <Column >
+         <Label text="Description"></Label>
+        </Column>
+        </columns>
+        <items>
+         <ColumnListItem >
+           <Text text="{VOYCD}"></Text>
+           <Text text="{VOYDES}"></Text>
+         </ColumnListItem>
+        </items>
+      </Table>
+    </Panel>
+    <Panel >
+      <Table items="{/PortMasterSet}" >
+        <columns>
+          <Column >
+           <Label text="fiels1"></Label>
+          </Column>
+           <Column >
+           <Label text="field2"></Label>
+          </Column>
+        </columns>
+
+        <items>
+            <ColumnListItem >
+                 <Text text="{Portc}"></Text>
+                 <Text text="{Country}"></Text>
+            </ColumnListItem>
+        </items>
+      </Table>
+    </Panel>
+    </Page>
+</mvc:View>
