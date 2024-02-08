@@ -28,13 +28,13 @@
         "model": "srv/external/NAUTIMARINE_TRAFFIC_API_SRV",
         "[production]": {
           "credentials": {
-            "destination": "internalserver",
+            "destination": "dipanshu",
             "path": "/sap/opu/odata/nauti/MARINE_TRAFFIC_API_SRV"
           }
         },
         "[development]": {
           "credentials": {
-            "destination": "sandbox",
+            "destination": "Sandbox",
             "path": "/sap/opu/odata/nauti/MARINE_TRAFFIC_API_SRV"
           }
         }
@@ -44,13 +44,13 @@
         "model": "srv/external/NAUTINAUTICALCV_SRV",
         "[production]": {
           "credentials": {
-            "destination": "internalserver",
+            "destination": "dipanshu",
             "path": "/sap/opu/odata/nauti/NAUTICALCV_SRV"
           }
         },
         "[development]": {
           "credentials": {
-            "destination": "sandbox",
+            "destination": "Sandbox",
             "path": "/sap/opu/odata/nauti/NAUTICALCV_SRV"
           }
         }

@@ -227,6 +227,7 @@ sap.ui.define(
         var that = this;
         // 
         let lastPortData = structuredClone(oJsonModel.getData());
+        console.log("last port data: ",lastPortData);
         sap.ui.core.BusyIndicator.show();
         if (oJsonModel.getData().portData.length) {
           if (oJsonModel.getData().portData[oJsonModel.getData().portData.length - 1].PortName === "Total") {
@@ -235,9 +236,7 @@ sap.ui.define(
         }
         oJsonModel.getData().oEdit = true;
         oJsonModel.refresh();
-        var selectedPort = oJsonModel
-          .getData()
-          .allPort.find((element) => element.Portn === oEvent.target._popup._source._popup._content);
+        var selectedPort = oJsonModel.getData().allPort.find((element) => element.Portn === oEvent.target._popup._source._popup._content);
         let legId = oJsonModel.getData().portData.length + 1;
         var portObj = {
           LegId: legId.toString(),
@@ -261,6 +260,8 @@ sap.ui.define(
           portObj.Distance = "00000";
         }
         oJsonModel.getData().portData.push(portObj);
+        console.log("json model ", oJsonModel.getData());
+        console.log("json model port data", oJsonModel.getData().portData);
         oJsonModel.refresh();
         var portLng = oJsonModel.getData().portData.length;
         if (portLng < 2) {
