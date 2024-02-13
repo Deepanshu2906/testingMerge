@@ -29,13 +29,17 @@
         "[production]": {
           "credentials": {
             "destination": "dipanshu",
-            "path": "/sap/opu/odata/nauti/MARINE_TRAFFIC_API_SRV"
+            "path": "/sap/opu/odata/nauti/MARINE_TRAFFIC_API_SRV",
+            "csrf": true,
+            "csrfInBatch": true
           }
         },
         "[development]": {
           "credentials": {
             "destination": "Sandbox",
-            "path": "/sap/opu/odata/nauti/MARINE_TRAFFIC_API_SRV"
+            "path": "/sap/opu/odata/nauti/MARINE_TRAFFIC_API_SRV",
+            "csrf": true,
+            "csrfInBatch": true
           }
         }
       },
@@ -45,13 +49,17 @@
         "[production]": {
           "credentials": {
             "destination": "dipanshu",
-            "path": "/sap/opu/odata/nauti/NAUTICALCV_SRV"
+            "path": "/sap/opu/odata/nauti/NAUTICALCV_SRV",
+            "csrf": true,
+            "csrfInBatch": true
           }
         },
         "[development]": {
           "credentials": {
             "destination": "Sandbox",
-            "path": "/sap/opu/odata/nauti/NAUTICALCV_SRV"
+            "path": "/sap/opu/odata/nauti/NAUTICALCV_SRV",
+            "csrf": true,
+            "csrfInBatch": true
           }
         }
       }

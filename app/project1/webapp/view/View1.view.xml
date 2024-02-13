@@ -404,6 +404,7 @@
                                                 </ui:Column>
                                             </ui:columns>
                                         </ui:Table>
+                                        
                                     </layout:content>
                                 </layout:BlockLayoutCell>
                             </layout:BlockLayoutRow>

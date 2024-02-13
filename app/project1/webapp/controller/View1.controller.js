@@ -36,7 +36,7 @@ sap.ui.define(
       onInit: function () {
 
         // let x  = new JSONModel({});
-        
+
         // x.loadData("/odata/v4/nauticalcv-srv").then(function(){
         //   console.log(x.getData().value);
         // })
@@ -82,8 +82,8 @@ sap.ui.define(
         oJsonModel = new sap.ui.model.json.JSONModel();
         oJsonModel.setData(DataNode);
         oJsonModel.setDefaultBindingMode("TwoWay");
-        
-        // this.getOwnerComponent().setModel(oJsonModel, "oJsonModel");
+
+        this.getOwnerComponent().setModel(oJsonModel, "oJsonModel");
         window.that = this;
       },
 
@@ -136,49 +136,49 @@ sap.ui.define(
         });
 
         var oDataModel = this.getOwnerComponent().getModel();
-        
+
         var that = this;
         this._BusyDialog.setTitle("Loading Ports...");
         this._BusyDialog.setText("Please wait...");
         this._BusyDialog.open();
         window.that = this;
-        
+
         const portModel = new JSONModel({
-            sPortMasterData: [],
-          });
+          sPortMasterData: [],
+        });
 
         let oPortMasterTypeContext = oDataModel.bindList("/PortMasterSet");
-          oPortMasterTypeContext.requestContexts().then(function(context)  {
-              context.forEach(item=>{
-                portModel.getData().sPortMasterData.push(item.getObject());
-                
-              })
-              console.log("oPort Master ",portModel.getData().sPortMasterData);
-              let oData = portModel.getData().sPortMasterData;
-              oJsonModel.getData().allPort = oData;
-            // console.log(oData.results);
+        oPortMasterTypeContext.requestContexts().then(function (context) {
+          context.forEach(item => {
+            portModel.getData().sPortMasterData.push(item.getObject());
+
+          })
+          console.log("oPort Master ", portModel.getData().sPortMasterData);
+          let oData = portModel.getData().sPortMasterData;
+          oJsonModel.getData().allPort = oData;
+          // console.log(oData.results);
           for (var i = 0; i < oData.length; i++) {
-              L.marker([Number(oData[i].Latitude), Number(oData[i].Longitude)], {
-                icon: anchorIcon,
-              })
-                .bindPopup(oData[i].Portn)
-                .bindTooltip(oData[i].Portn, {
-                  direction: "bottom",
-                  permanent: true,
-                  offset: L.point(3, 2),
-                  className: "leaflet-tooltip-own",
-                })
-                .addTo(map)
-                .on("click", that.onMarkerClick);
-            }
-            if (that._BusyDialog) {
-              boolPortsLoaded = true;
-              that._BusyDialog.close();
-              clearTimeout(that._BusyTimeout);
-              map.invalidateSize(true);
-            }
+            L.marker([Number(oData[i].Latitude), Number(oData[i].Longitude)], {
+              icon: anchorIcon,
             })
-    
+              .bindPopup(oData[i].Portn)
+              .bindTooltip(oData[i].Portn, {
+                direction: "bottom",
+                permanent: true,
+                offset: L.point(3, 2),
+                className: "leaflet-tooltip-own",
+              })
+              .addTo(map)
+              .on("click", that.onMarkerClick);
+          }
+          if (that._BusyDialog) {
+            boolPortsLoaded = true;
+            that._BusyDialog.close();
+            clearTimeout(that._BusyTimeout);
+            map.invalidateSize(true);
+          }
+        })
+
 
         // oDataModel.read("/PortMasterSet", {
         //   success: function (oData, oResponse) {
@@ -209,8 +209,8 @@ sap.ui.define(
         //   error: function (oData, oResponse) { },
         // });
       },
-   
-      
+
+
 
       groupBy: function (array, property) {
         var hash = {};
@@ -222,12 +222,12 @@ sap.ui.define(
         return hash;
       },
 
-      onMarkerClick: function (oEvent) {
+      onMarkerClick: async function (oEvent) {
         // debugger;
         var that = this;
         // 
         let lastPortData = structuredClone(oJsonModel.getData());
-        console.log("last port data: ",lastPortData);
+
         sap.ui.core.BusyIndicator.show();
         if (oJsonModel.getData().portData.length) {
           if (oJsonModel.getData().portData[oJsonModel.getData().portData.length - 1].PortName === "Total") {
@@ -286,161 +286,83 @@ sap.ui.define(
           IvOptimized = "X";
           // }
           var aFilter = [];
+          var aFilter = [];
           aFilter.push(new sap.ui.model.Filter("IvFromPort", "EQ", IvFromPort));
           aFilter.push(new sap.ui.model.Filter("IvToPort", "EQ", IvToPort));
-          aFilter.push(new sap.ui.model.Filter("IvOptimized", "EQ", IvOptimized));
-          console.log(aFilter, oDataModel);
+        // Create a filter for IvOptimized with a boolean value as a string
+        aFilter.push(new sap.ui.model.Filter("IvOptimized", "EQ", IvOptimized));
 
-          const esModel = new JSONModel(
-            {
-              sEsRoutePathData : [],
-            }
-            );
-            let x = new JSONModel();
-          let oValueHelpContext = oDataModel.bindList("/es_route_map");
-
-          oValueHelpContext.requestContexts().then(function (context) {
-            console.log("context es route:", context);
-        
-            if (context.length === 0) {
-                console.error("No contexts found for /es_route_map");
-                return; // Exit the function or handle the case where there are no contexts
-            }
-        
-            // Fetching related entity set data for each entry with filters
-            Promise.all(context.map(item => {
-                // Build the filter string based on your filter array
-                const filterString = aFilter.map(filter => `${filter.field} ${filter.operator} '${filter.value}'`).join(' and ');
-        
-                // Customize the URL parameters for each request
-                const urlParameters = {
-                    $expand: "route", // Add your expand options here
-                    $filter: filterString,
-                };
-        
-                return oDataModel.requestObject(item.getPath(), {
-                    urlParameters: urlParameters,
-                });
-            })).then(function (expandedData) {
-                // Process the expanded data and push it into the model
-                expandedData.forEach((expandedItem, index) => {
-                    console.log(expandedItem);
-                    esModel.getData().sEsRoutePathData.push(expandedItem);
-                });
-        
-                // Now, you can use esModel.getData().sEsRoutePathData as needed.
-            }).catch(function (error) {
-                console.error("Error in Promise.all:", error);
-                // Handle error appropriately
-            });
-        }).catch(function (error) {
-            console.error("Error in requestContexts:", error);
-            // Handle error appropriately
-        
-        
-
-          // oValueHelpContext.requestContexts().then(function (context) {
-          //   console.log("centext es route :", context);
-        
-          //   // Fetching related entity set data for each entry with filters
-          //   Promise.all(context.map(item => {
-          //       return oDataModel.read(item.getPath(), {
-          //           urlParameters: {
-          //               $expand: "route", // Add your expand options here
-          //           },
-          //           filters: aFilter, // Add your filter array here
-          //       });
-          //   })).then(function (expandedData) {
-          //       // Process the expanded data and push it into the model
-          //       expandedData.forEach((expandedItem, index) => {
-          //           console.log(expandedItem.getObject());
-          //           esModel.getData().sEsRoutePathData.push(expandedItem.getObject());
-          //       });
-        
-          //       // Now, you can use esModel.getData().sEsRoutePathData as needed.
-          //   });
-      
-      
-          
-          //   if (!oData.results[0].route.results.length) {
-
-          //   MessageBox.error(`No Route between Ports ${FromPortName} and ${ToPortName}`, {
-          //     onClose: () => {
-          //       oJsonModel.setData(lastPortData);
-          //       oJsonModel.refresh();
-          //     }
-          //   });
-          // } else {
-          //   for (var i = 0; i < oData.results[0].route.results.length; i++) {
-          //     // console.log(oData.results[0].route.results);
-          //     var arrNew = that.groupBy(oData.results[0].route.results, "PathId");
-          //   }
-          //   for (var i = 1; i < Object.keys(arrNew).length + 1; i++) {
-          //     var path = ["M"];
-          //     for (var j = 0; j < arrNew[i].length; j++) {
-          //       path.push([Number(arrNew[i][j].Latitude), Number(arrNew[i][j].Longitude)]);
-          //     }
-          //   }
-          //   // Added reference to each path that is drawn on the map, so it is now possible to refresh/remove it later "Khushal
-          //   let pathVarLengthBefore = pathVariable.length;
-          //   pathVariable.push(
-          //     L.curve([...path], {
-          //       color: "red",
-          //       fill: false,
-          //     })
-          //   );
-          //   for (let i = pathVarLengthBefore; i < pathVariable.length; i++) {
-          //     pathVariable[i].addTo(map);
-          //   }
-          //   oJsonModel.getData().portData[portLng - 1].Distance = oData.results[0].marineApiRoute.EvDistance;
-          //   oJsonModel.refresh();
-          // }
-          // sap.ui.core.BusyIndicator.hide();
+          const esModel = new JSONModel({
+            sEsRoutePathData: [],
           });
 
-          // oDataModel.read("/es_route_map", {
-          //   urlParameters: {
-          //     $expand: "route",
-          //   },
-          //   filters: aFilter,
-          //   success: function (oData, oResponse) {
-          //     if (!oData.results[0].route.results.length) {
-          //       MessageBox.error(`No Route between Ports ${FromPortName} and ${ToPortName}`, {
-          //         onClose: () => {
-          //           oJsonModel.setData(lastPortData);
-          //           oJsonModel.refresh();
-          //         }
-          //       });
-          //     } else {
-          //       for (var i = 0; i < oData.results[0].route.results.length; i++) {
-          //         // console.log(oData.results[0].route.results);
-          //         var arrNew = that.groupBy(oData.results[0].route.results, "PathId");
-          //       }
-          //       for (var i = 1; i < Object.keys(arrNew).length + 1; i++) {
-          //         var path = ["M"];
-          //         for (var j = 0; j < arrNew[i].length; j++) {
-          //           path.push([Number(arrNew[i][j].Latitude), Number(arrNew[i][j].Longitude)]);
-          //         }
-          //       }
-          //       // Added reference to each path that is drawn on the map, so it is now possible to refresh/remove it later "Khushal
-          //       let pathVarLengthBefore = pathVariable.length;
-          //       pathVariable.push(
-          //         L.curve([...path], {
-          //           color: "red",
-          //           fill: false,
-          //         })
-          //       );
-          //       for (let i = pathVarLengthBefore; i < pathVariable.length; i++) {
-          //         pathVariable[i].addTo(map);
-          //       }
-          //       oJsonModel.getData().portData[portLng - 1].Distance = oData.results[0].marineApiRoute.EvDistance;
-          //       oJsonModel.refresh();
-          //     }
-          //     sap.ui.core.BusyIndicator.hide();
-          //   },
-          //   error: function (oData, oResponse) { },
-          // });
+          let oData = await that.getRouteData(IvFromPort,IvToPort,IvOptimized)
+
+                        newFunction(oData, FromPortName, ToPortName);
+              sap.ui.core.BusyIndicator.hide();
         }
+
+        function newFunction(oData, FromPortName, ToPortName) {
+          if (!oData.results[0].route.results.length) {
+            MessageBox.error(`No Route between Ports ${FromPortName} and ${ToPortName}`, {
+              onClose: () => {
+                oJsonModel.setData(lastPortData);
+                oJsonModel.refresh();
+              }
+            });
+          } else {
+            for (var i = 0; i < oData.results[0].route.results.length; i++) {
+              // console.log(oData.results[0].route.results);
+              var arrNew = that.groupBy(oData.results[0].route.results, "PathId");
+            }
+            for (var i = 1; i < Object.keys(arrNew).length + 1; i++) {
+              var path = ["M"];
+              for (var j = 0; j < arrNew[i].length; j++) {
+                path.push([Number(arrNew[i][j].Latitude), Number(arrNew[i][j].Longitude)]);
+              }
+            }
+            // Added reference to each path that is drawn on the map, so it is now possible to refresh/remove it later "Khushal
+            let pathVarLengthBefore = pathVariable.length;
+            pathVariable.push(
+              L.curve([...path], {
+                color: "red",
+                fill: false,
+              })
+            );
+            for (let i = pathVarLengthBefore; i < pathVariable.length; i++) {
+              pathVariable[i].addTo(map);
+            }
+            oJsonModel.getData().portData[portLng - 1].Distance = oData?.results[0]?.marineApiRoute?.EvDistance ?? 0; // #TODO FIX FOR BTP
+            oJsonModel.refresh();
+          }
+        }
+      },
+
+      getRouteData: function (from, to, optimized) {
+        let oModel = this.getView().getModel();
+        let oBindList = oModel.bindList("/es_route_map", null, null, null, {
+          $expand: "route",
+          $select: "IvFromPort,IvToPort,IvOptimized"
+        });
+
+        let oFilterFromPort = new sap.ui.model.Filter("IvFromPort", sap.ui.model.FilterOperator.EQ, from);
+        let oFilterToPort = new sap.ui.model.Filter("IvToPort", sap.ui.model.FilterOperator.EQ, to);
+        let oFilterOptimized = new sap.ui.model.Filter("IvOptimized", sap.ui.model.FilterOperator.EQ, optimized);
+        let oData = {};
+        oBindList.filter([oFilterFromPort, oFilterToPort, oFilterOptimized]);
+        return new Promise((resolve, reject) => {
+          oBindList.requestContexts().then(function (context) {
+            context.forEach((oContext, index) => {
+                oData["results"] = [{
+                  route: {
+                    results: oContext.getObject()?.route
+                  }
+                }]
+              })
+            resolve(oData)
+          });
+
+        })
       },
 
       onClear: function (oEvent) {
@@ -549,7 +471,7 @@ sap.ui.define(
         let legOneCargoSize = selectedPorts[0].CargoSize;
         let totalCargoSize = 0;
         if (!headerData[0].voynm) {
-          MessageBox.error("Please enter Voyage Name."); 
+          MessageBox.error("Please enter Voyage Name.");
           return false;
         }
 
